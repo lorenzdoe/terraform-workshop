@@ -26,11 +26,11 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
-        # This step sets up the Terraform CLI with the Terraform Cloud API token.
+        # setip the terraform cli with the api token
 
       - name: Terraform init
         run: cd ${{ env.CONFIG_DIRECTORY }} && terraform init
       
       - name: Terraform Apply
         run: cd ${{ env.CONFIG_DIRECTORY }} && terraform destroy -auto-approve
-        # This step runs terraform destroy -auto-approve to destroy the infrastructure.
+        # destroys the infrastructure, no confirmation needed
