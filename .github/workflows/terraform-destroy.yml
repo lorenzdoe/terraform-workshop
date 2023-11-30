@@ -13,24 +13,24 @@ jobs:
   terraform:
     name: "Terraform Destroy"
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        shell: bash
-    
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Terraform Setup
-        uses: hashicorp/setup-terraform@v2
+      - name: Create Apply Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        id: apply-run
         with:
-          cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
-        # This step sets up the Terraform CLI with the Terraform Cloud API token.
+          workspace: ${{ env.TF_WORKSPACE }}
+        # This step creates a new run for applying the Terraform configuration.
 
-      - name: Terraform init
-        run: terraform init
-      
-      - name: Destroy
-        run: terraform apply destroy.tfplan
-        # This step runs terraform destroy -auto-approve to destroy the infrastructure.
+      - name: Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
+        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
+        id: apply
+        with:
+          run: ${{ steps.apply-run.outputs.run_id }} -destroy
+          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+        # This step applies the Terraform configuration if it is confirmable.
