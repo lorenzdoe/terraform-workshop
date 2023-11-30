@@ -29,7 +29,7 @@ jobs:
         # This step sets up the Terraform CLI with the Terraform Cloud API token.
 
       - name: Terraform init
-        run: terraform init
+        run: cd ${{ env.CONFIG_DIRECTORY }} && terraform init
       
       - name: plan destroy
         run: terraform plan -destroy -out=destroy.tfplan
