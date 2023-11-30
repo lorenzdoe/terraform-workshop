@@ -29,7 +29,7 @@ terraform {
     cloud {
       organization = "lorenzdoe"
       workspaces {
-        name = "terraform-workshop-3"
+        name = "terraform-workshop"
       }
     }
 
