@@ -32,9 +32,9 @@ jobs:
         run: cd ${{ env.CONFIG_DIRECTORY }} && terraform init
       
       - name: plan destroy
-        run: terraform plan -destroy -out=destroy.tfplan
+        run: cd ${{ env.CONFIG_DIRECTORY }} && terraform plan -destroy -out=destroy.tfplan
         # This step runs terraform destroy -auto-approve to destroy the infrastructure.
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve destroy.tfplan
+        run: cd ${{ env.CONFIG_DIRECTORY }} && terraform apply -auto-approve destroy.tfplan
         # This step runs terraform destroy -auto-approve to destroy the infrastructure.
