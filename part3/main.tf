@@ -26,6 +26,7 @@ terraform {
 
     required_version = ">= 1.2.0"
 
+    # needed to store the state in the cloud
     cloud {
       organization = "lorenzdoe"
       workspaces {
