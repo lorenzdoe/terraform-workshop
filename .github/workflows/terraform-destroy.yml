@@ -32,5 +32,5 @@ jobs:
         run: terraform init
       
       - name: Destroy
-        run: terraform destroy -auto-approve
+        run: terraform apply destroy.tfplan
         # This step runs terraform destroy -auto-approve to destroy the infrastructure.
