@@ -3,68 +3,68 @@ name: 'Terraform Apply'
 on:
   workflow_dispatch:
 
-env:
-  CONFIG_DIRECTORY: "./part3/"
-  
-jobs:
-  terraform:
-    name: "Terraform Apply"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Terraform CLI
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-      - name: Terraform Init
-        run: cd ${{ env.CONFIG_DIRECTORY }} && terraform init
-      - name: Terraform apply
-        run: cd ${{ env.CONFIG_DIRECTORY }} && terraform apply -auto-approve
-
 # env:
-#   TF_CLOUD_ORGANIZATION: "lorenzdoe"
-#   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-#   TF_WORKSPACE: "terraform-workshop"
 #   CONFIG_DIRECTORY: "./part3/"
-
+  
 # jobs:
 #   terraform:
 #     name: "Terraform Apply"
 #     runs-on: ubuntu-latest
 #     permissions:
 #       contents: read
+#     defaults:
+#       run:
+#         shell: bash
 #     steps:
 #       - name: Checkout
 #         uses: actions/checkout@v3
-
-#       - name: Upload Configuration
-#         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-#         id: apply-upload
+#       - name: Setup Terraform CLI
+#         uses: hashicorp/setup-terraform@v2
 #         with:
-#           workspace: ${{ env.TF_WORKSPACE }}
-#           directory: ${{ env.CONFIG_DIRECTORY }}
-#         # Upload Configuration uploads the Terraform configuration to Terraform Cloud.
-#         # this is necessary to create a run and to be able to destroy the infrastructure later
+#           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+#       - name: Terraform Init
+#         run: cd ${{ env.CONFIG_DIRECTORY }} && terraform init
+#       - name: Terraform apply
+#         run: cd ${{ env.CONFIG_DIRECTORY }} && terraform apply -auto-approve
 
-#       - name: Create Apply Run
-#         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-#         id: apply-run
-#         with:
-#           workspace: ${{ env.TF_WORKSPACE }}
-#           configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
-#         # This step creates a new run for applying the Terraform configuration.
+env:
+  TF_CLOUD_ORGANIZATION: "lorenzdoe"
+  TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+  TF_WORKSPACE: "terraform-workshop"
+  CONFIG_DIRECTORY: "./part3/"
 
-#       - name: Apply
-#         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
-#         if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
-#         id: apply
-#         with:
-#           run: ${{ steps.apply-run.outputs.run_id }}
-#           comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
-#         # This step applies the Terraform configuration if it is confirmable.
+jobs:
+  terraform:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Upload Configuration
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+        id: apply-upload
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: ${{ env.CONFIG_DIRECTORY }}
+        # Upload Configuration uploads the Terraform configuration to Terraform Cloud.
+        # this is necessary to create a run and to be able to destroy the infrastructure later
+
+      - name: Create Apply Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        id: apply-run
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+        # This step creates a new run for applying the Terraform configuration.
+
+      - name: Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
+        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
+        id: apply
+        with:
+          run: ${{ steps.apply-run.outputs.run_id }}
+          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+        # This step applies the Terraform configuration if it is confirmable.
