@@ -10,7 +10,7 @@ env:
   CONFIG_DIRECTORY: "./part3/"
 
 jobs:
-  terraform-destroy:
+  terraform:
     name: "Terraform Destroy"
     runs-on: ubuntu-latest
     permissions:
@@ -25,22 +25,23 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
-        # This step checks out the repository code.
 
-      - name: Create Destroy Run
+      - name: Create Destroy Plan Run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: destroy-run
+        id: destroy-plan
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.destroy-upload.outputs.configuration_version_id }}
-          auto-destroy: true
-        # This step creates a new run with the auto-destroy flag, signaling Terraform Cloud to destroy the managed infrastructure.
+          message: "Destroy plan"
+          is_destroy: true
+        # This step creates a new destroy plan run, specifying is_destroy as true.
 
-      - name: Confirm and Apply Destroy
+      - name: Apply Destroy
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
-        if: fromJSON(steps.destroy-run.outputs.payload).data.attributes.actions.isConfirmable
-        id: confirm-and-destroy
+        if: fromJSON(steps.destroy-plan.outputs.payload).data.attributes.actions.IsConfirmable
+        id: apply-destroy
         with:
-          run: ${{ steps.destroy-run.outputs.run_id }}
-          comment: "Destroy Run from GitHub Actions CI ${{ github.sha }}"
-        # This step applies the Terraform configuration if it is confirmable, in this case, it will trigger the destruction of resources.
+          run: ${{ steps.destroy-plan.outputs.run_id }}
+          comment: "Apply Destroy from GitHub Actions CI ${{ github.sha }}"
+          auto_approve: true
+        # This step applies the destroy plan if it is confirmable and automatically approves the run.
