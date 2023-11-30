@@ -2,7 +2,7 @@ name: 'Terraform Destroy'
 
 on:
   workflow_dispatch:
-
+  
 env:
   TF_CLOUD_ORGANIZATION: "lorenzdoe"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
@@ -13,35 +13,24 @@ jobs:
   terraform:
     name: "Terraform Destroy"
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+
+    defaults:
+      run:
+        shell: bash
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Upload Configuration
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-        id: destroy-upload
+      - name: Terraform Setup
+        uses: hashicorp/setup-terraform@v1.0.0
         with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          directory: ${{ env.CONFIG_DIRECTORY }}
+          cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
+        # This step sets up the Terraform CLI with the Terraform Cloud API token.
 
-      - name: Create Destroy Plan Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: destroy-plan
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.destroy-upload.outputs.configuration_version_id }}
-          message: "Destroy plan"
-          is_destroy: true
-        # This step creates a new destroy plan run, specifying is_destroy as true.
-
-      - name: Apply Destroy
-        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
-        if: fromJSON(steps.destroy-plan.outputs.payload).data.attributes.actions.IsConfirmable
-        id: apply-destroy
-        with:
-          run: ${{ steps.destroy-plan.outputs.run_id }}
-          comment: "Apply Destroy from GitHub Actions CI ${{ github.sha }}"
-          auto_approve: true
-        # This step applies the destroy plan if it is confirmable and automatically approves the run.
+      - name: Terraform init
+        run: terraform init
+      
+      - name: Destroy
+        run: terraform destroy -auto-approve
+        # This step runs terraform destroy -auto-approve to destroy the infrastructure.
