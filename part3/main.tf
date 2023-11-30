@@ -16,6 +16,7 @@ terraform destroy
 */
 
 terraform {
+
     required_providers {
         aws = {
             source  = "hashicorp/aws"
@@ -24,6 +25,14 @@ terraform {
     }
 
     required_version = ">= 1.2.0"
+
+    cloud {
+      organization = "lorenzdoe"
+      workspaces {
+        name = "terraform-workshop-3"
+      }
+    }
+
 }
 provider "aws" {
   region  = "us-east-1"
