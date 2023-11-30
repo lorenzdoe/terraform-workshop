@@ -24,6 +24,7 @@ jobs:
         id: apply-run
         with:
           workspace: ${{ env.TF_WORKSPACE }}
+          tfci: -destroy
         # This step creates a new run for applying the Terraform configuration.
 
       - name: Apply
@@ -33,5 +34,4 @@ jobs:
         with:
           run: ${{ steps.apply-run.outputs.run_id }}
           comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
-          tfci: -destroy
         # This step applies the Terraform configuration if it is confirmable.
